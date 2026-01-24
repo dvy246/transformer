@@ -1,9 +1,39 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
-from src.components import MultiHeadAttentionBlock,FeedForwardBlock,PositionalEncoding,ResidualConnection,LayerNormalization,InputEmbeddings
+from src.transformer.components import MultiHeadAttentionBlock,FeedForwardBlock,PositionalEncoding,ResidualConnection,LayerNormalization,InputEmbeddings
+
+
+
 class EncoderLayer(nn.Module):
+    """
+    A single layer of the Transformer encoder that combines self-attention and feed-forward operations with residual connections.
+
+    This layer is a fundamental building block of the Transformer encoder, implementing the core operations:
+    - Multi-head self-attention mechanism to capture dependencies between different positions in the input sequence
+    - Position-wise feed-forward network for additional non-linear transformations
+    - Residual connections around each sub-layer followed by layer normalization
+
+    Typical usage in a Transformer encoder:
+        encoder_layer = EncoderLayer(
+            features=512,
+            self_attention_block=MultiHeadAttentionBlock(...),
+            feed_forward_block=FeedForwardBlock(...),
+            dropout=0.1
+        )
+        output = encoder_layer(input_tensor, src_mask)
+
+    Args:
+        features (int): The number of expected features in the input (dimensionality of the model).
+        self_attention_block (MultiHeadAttentionBlock): The multi-head attention mechanism module.
+        feed_forward_block (FeedForwardBlock): The position-wise feed-forward network module.
+        dropout (float): The dropout probability for residual connections.
+    
+    Note:
+        - The input tensor should have shape (batch_size, seq_length, features)
+        - The src_mask is used to mask out certain positions in the attention mechanism
+        - This implementation assumes the residual connections include layer normalization
+    """
     def __init__(self, features: int, self_attention_block: MultiHeadAttentionBlock, feed_forward_block: FeedForwardBlock, dropout: float):
         super().__init__()
         self.self_attention_block = self_attention_block
@@ -14,6 +44,7 @@ class EncoderLayer(nn.Module):
         x = self.residual_connections[0](x, lambda x: self.self_attention_block(x, x, x, src_mask))
         x = self.residual_connections[1](x, self.feed_forward_block)
         return x
+
 
 class DecoderLayer(nn.Module):
     def __init__(self, features: int, self_attention_block: MultiHeadAttentionBlock, cross_attention_block: MultiHeadAttentionBlock, feed_forward_block: FeedForwardBlock, dropout: float):

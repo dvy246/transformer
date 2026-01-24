@@ -1,6 +1,6 @@
 import torch.nn as nn
-from src.model import Encoder,EncoderLayer,Decoder,DecoderLayer,ProjectionLayer,Transformer
-from src.components import MultiHeadAttentionBlock,FeedForwardBlock,PositionalEncoding,InputEmbeddings
+from src.transformer.model import Encoder,EncoderLayer,Decoder,DecoderLayer,ProjectionLayer,Transformer
+from src.transformer.components import MultiHeadAttentionBlock,FeedForwardBlock,PositionalEncoding,InputEmbeddings
 
 # ---------------------------------------------------------
 # 9. MODEL BUILDER
