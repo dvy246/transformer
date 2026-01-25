@@ -3,7 +3,22 @@ import torch
 
 
 class CustomDataset(Dataset):
+    """
+    A custom PyTorch Dataset for sequence-to-sequence tasks.
+    It handles tokenization, padding, and adding special tokens (SOS, EOS) to the input sequences.
+    """
     def __init__(self, ds,src_tokenizer,tgt_tokenizer,src_lang,tgt_lang,seq_lenght):
+        """
+        Initializes the CustomDataset.
+
+        Args:
+            ds: The raw dataset containing source and target text pairs.
+            src_tokenizer: Tokenizer for the source language.
+            tgt_tokenizer: Tokenizer for the target language.
+            src_lang (str): The key for the source language in the dataset.
+            tgt_lang (str): The key for the target language in the dataset.
+            seq_lenght (int): The fixed sequence length for padding/truncation.
+        """
         super().__init__()
 
         self.data = ds
@@ -19,9 +34,29 @@ class CustomDataset(Dataset):
         self.sos_token=torch.tensor(self.src_tokenizer.token_to_id([['SOS']]),dtype=torch.int64)
         
     def __len__(self):
+        """
+        Returns the total number of items in the dataset.
+        """
+
         return len(self.data)
     
     def __getitem__(self, idx):
+        """
+        Retrieves a sample from the dataset at the given index.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            dict: A dictionary containing:
+                - 'encoder_input': Tensor for encoder input (SOS + tokens + EOS + PAD).
+                - 'decoder_input': Tensor for decoder input (SOS + tokens + PAD).
+                - 'encoder_mask': Mask for encoder input (hides PAD tokens).
+                - 'decoder_mask': Mask for decoder input (hides PAD tokens and future tokens).
+                - 'output_label': Tensor for target labels (tokens + EOS + PAD).
+                - 'src_text': Original source text.
+                - 'tgt_text': Original target text.
+        """
         
         #get the input and output texts from the dataset
         src_text=self.data[idx][self.src_lang]
@@ -78,7 +113,25 @@ class CustomDataset(Dataset):
         assert output_label.size(0)==self.seq_lenght
             
         return {
-            'encoder_input':self.encoder_input,
-            'decoder_input':self.decoder_input,
-            'label':self.output_label
+            'encoder_input':encoder_input,
+            'decoder_input':decoder_input,
+            'encoder_mask':(encoder_input!=self.pad_token).unsqueeze(0).unsqueeze(0).int(),
+            'decoder_mask':(decoder_input!=self.pad_token).unsqueeze(0).unsqueeze(0).int() & casual_mask(decoder_input.size(0)),
+            'output_label':output_label,
+            'src_text':src_text,
+            'tgt_text':tgt_text
         }
+
+
+def casual_mask(size):
+    """
+    Creates a causal mask (upper triangular matrix) for the decoder to prevent attending to future tokens.
+
+    Args:
+        size (int): The size of the square mask (sequence length).
+
+    Returns:
+        torch.Tensor: A boolean mask where True indicates allowed positions.
+    """
+    mask=torch.triu(torch.ones(1,size,size),diagonal=1).type(torch.int)
+    return mask==0
