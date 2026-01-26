@@ -9,7 +9,7 @@ def get_config():
     return {
 
         'src_lang':'english_sentence',
-        'tgt_lang':'hinid_sentence',
+        'tgt_lang':'hindi_sentence',
         'lr':10**-4,
         'batch_size':350,
         'seq_lenght':350,

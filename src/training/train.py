@@ -49,11 +49,14 @@ def train_model(config):
                 #load the model weights from the file
                 state=torch.load(file,map_location=device)
 
-                #loading the optimizer state from the file
-                optimizer_state=optimizer.load_state_dict(config['optimizer_state'])
+                #load the model state
+                model.load_state_dict(state['models_state'])
 
-                #initial_epoch and global_epoc from the saved model state 
-                initial_epoch=state['initial_epoch']+1
+                #loading the optimizer state from the file
+                optimizer.load_state_dict(state['optimizer_state'])
+
+                #initial_epoch and global_step from the saved model state 
+                initial_epoch=state['epochs']+1
 
                 #global step
                 global_step=state['global_step']
@@ -61,24 +64,24 @@ def train_model(config):
         #initialize loss with ignore index of the pad token BY CONVERTING TO ID
         loss=nn.CrossEntropyLoss(ignore_index=train_tokenizer.token_to_id('[PAD]').id,label_smoothing=0.1)
         
-        for epochs in range(initial_epoc,config['num_epochs']):
+        for epochs in range(initial_epoc,config['epochs']):
                 model.train()
                 training_loader=tqdm(training_ds,f'processing epoch {epochs:02d}')
                 for batch in training_loader:
 
-                        enocder_input=batch['encoder_input'].to(device) # (batch_size, seq_length)
+                        encoder_input=batch['encoder_input'].to(device) # (batch_size, seq_length)
                         decoder_input=batch['decoder_input'].to(device) # (batch_size,seq_lenght)
                         encoder_mask=batch['encoder_mask'].to(device) # (batch,1,1,seq_length)
                         decoder_mask=batch['decoder_mask'].to(device) # (barch,1,seq_length,seq_length)
 
 
                         #forward pass
-                        encoder_output=model.encode(enocder_input,encoder_mask) #(B,seq_length,d_model)
+                        encoder_output=model.encode(encoder_input,encoder_mask) #(B,seq_length,d_model)
 
                         #decoder output
-                        deconder_output=model.decode(encoder_output,src_mask=encoder_mask,tgt=decoder_input,tgt_mask=decoder_mask) #(batch_size,seq_length,d_model)
+                        decoder_output=model.decode(encoder_output,src_mask=encoder_mask,tgt=decoder_input,tgt_mask=decoder_mask) #(batch_size,seq_length,d_model)
                         #projections
-                        projections=model.project(deconder_output)  #(batch_size,seq_length,tgt_vocab_size)
+                        projections=model.project(decoder_output)  #(batch_size,seq_length,tgt_vocab_size)
 
                         #labels
                         label=batch['labels'].to(device) #(b,seq_length)
@@ -98,7 +101,7 @@ def train_model(config):
                         #optimize
                         optimizer.step()
 
-                        global_epoc+=1
+                        global_step += 1
 
                 #save the model and its things after every epoch
                 torch.save(
@@ -107,7 +110,7 @@ def train_model(config):
                                 'epochs':epochs,
                                 'global_step':global_step,
                                 'optimizer_state':optimizer.state_dict()
-                        },model_weights_file_path
+                        },model_weights_file_path(config,epochs)
                 )
 
 

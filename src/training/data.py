@@ -29,9 +29,9 @@ class CustomDataset(Dataset):
         self.seq_lenght = seq_lenght
 
 
-        self.eos_token=torch.tensor(self.src_tokenizer.token_to_id([['EOS']]),dtype=torch.int64)
-        self.pad_token=torch.tensor(self.src_tokenizer.token_to_id([['PAD']]),dtype=torch.int64)
-        self.sos_token=torch.tensor(self.src_tokenizer.token_to_id([['SOS']]),dtype=torch.int64)
+        self.eos_token=torch.tensor([self.src_tokenizer.token_to_id('[EOS]')],dtype=torch.int64)
+        self.pad_token=torch.tensor([self.src_tokenizer.token_to_id('[PAD]')],dtype=torch.int64)
+        self.sos_token=torch.tensor([self.src_tokenizer.token_to_id('[SOS]')],dtype=torch.int64)
         
     def __len__(self):
         """
@@ -71,7 +71,7 @@ class CustomDataset(Dataset):
         enc_padd=self.seq_lenght-len(encoder_input_tokens)-2 #-2 cause of sos and eos
         dec_padd=self.seq_lenght-len(decoder_input__tokens)-1 #-1 speical taoken only
 
-        if enc_padd < 0 and dec_padd <0:
+        if enc_padd < 0 or dec_padd <0:
             raise ValueError("The sentence is too long")
         
         #encoder_input

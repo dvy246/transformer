@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader,Dataset,random_split
-
 from datasets import load_dataset
 from src.training.data import CustomDataset
 from tokenizers.models import WordLevel
@@ -53,13 +52,13 @@ def get_or_build_tokenizer(config,ds,lang):
         trainer=WordLevelTrainer(min_frequency=2,special_tokens=['[PAD]','[UNK]','[SOS]','[EOS]'])
 
         #train the tokenizer using the trainer
-        tokenizer.train_from_iterator(get_all_sentences(ds),trainer=trainer)
+        tokenizer.train_from_iterator(get_all_sentences(ds,lang=config['src_lang']),trainer=trainer)
 
         #save the tokenizer
-        tokenizer.save(path)
+        tokenizer.save(str(path))
 
     else:
-        tokenizer=Tokenizer.from_file(path)
+        tokenizer=Tokenizer.from_file(str(path))
 
     return tokenizer
 
@@ -77,12 +76,12 @@ def get_ds(config):
     ds=load_dataset("Aarif1430/english-to-hindi",split='train')
     
     #build tokenizer
-    train_tokenizer=get_or_build_tokenizer(config=config,ds=ds,lang="english_sentence")
-    val_tokenizer=get_or_build_tokenizer(config=config,ds=ds,lang="hindi_sentence")
+    train_tokenizer=get_or_build_tokenizer(config=config,ds=ds,lang=config['src_lang'])
+    val_tokenizer=get_or_build_tokenizer(config=config,ds=ds,lang=config['tgt_lang'])
 
     # train test split
     train_ds_size=int(0.9*len(ds))
-    test_ds_size=int(0.1* len(ds))
+    test_ds_size=len(ds)-train_ds_size
     
 
     #split the data 
@@ -98,15 +97,22 @@ def get_ds(config):
     max_len_src=0
     max_len_tgt=0
     
+    # Sample a few sequences to check lengths
+    sampled_count = 0
+    for idx in range(min(100, len(train_ds_raw))):
+        try:
+            src_text = train_ds_raw[idx][config['src_lang']]
+            tgt_text = train_ds_raw[idx][config['tgt_lang']]
+            src_ids=train_tokenizer.encode(src_text).ids
+            tgt_ids=val_tokenizer.encode(tgt_text).ids
 
-    for item in training_ds:
-        src_ids=train_tokenizer.encode(item[config['src_lang']]).ids
-        tgt_ids=val_tokenizer.encode(item[config['tgt_lang']]).ids
+            max_len_src=max(max_len_src,len(src_ids))
+            max_len_tgt=max(max_len_tgt,len(tgt_ids))
+            sampled_count += 1
+        except:
+            pass
 
-        max_len_src=max(max_len_src,len(src_ids))
-        max_len_tgt=max(max_len_tgt,len(tgt_ids))
-
-    print(f"max len src {max_len_src} max len tgt {max_len_tgt}")
+    print(f"max len src {max_len_src} max len tgt {max_len_tgt} (sampled {sampled_count} sequences)")
 
     return training_ds,validation_ds,train_tokenizer,val_tokenizer
 
