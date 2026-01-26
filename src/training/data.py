@@ -3,7 +3,6 @@ import torch
 
 
 class CustomDataset(Dataset):
-<<<<<<< HEAD
     """
     A custom PyTorch Dataset for sequence-to-sequence tasks.
     It handles tokenization, padding, and adding special tokens (SOS, EOS) to the input sequences.
@@ -20,9 +19,6 @@ class CustomDataset(Dataset):
             tgt_lang (str): The key for the target language in the dataset.
             seq_lenght (int): The fixed sequence length for padding/truncation.
         """
-=======
-    def __init__(self, ds,src_tokenizer,tgt_tokenizer,src_lang,tgt_lang,seq_lenght):
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
         super().__init__()
 
         self.data = ds
@@ -38,7 +34,6 @@ class CustomDataset(Dataset):
         self.sos_token=torch.tensor(self.src_tokenizer.token_to_id([['SOS']]),dtype=torch.int64)
         
     def __len__(self):
-<<<<<<< HEAD
         """
         Returns the total number of items in the dataset.
         """
@@ -62,11 +57,6 @@ class CustomDataset(Dataset):
                 - 'src_text': Original source text.
                 - 'tgt_text': Original target text.
         """
-=======
-        return len(self.data)
-    
-    def __getitem__(self, idx):
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
         
         #get the input and output texts from the dataset
         src_text=self.data[idx][self.src_lang]
@@ -123,7 +113,6 @@ class CustomDataset(Dataset):
         assert output_label.size(0)==self.seq_lenght
             
         return {
-<<<<<<< HEAD
             'encoder_input':encoder_input,
             'decoder_input':decoder_input,
             'encoder_mask':(encoder_input!=self.pad_token).unsqueeze(0).unsqueeze(0).int(),
@@ -146,9 +135,3 @@ def casual_mask(size):
     """
     mask=torch.triu(torch.ones(1,size,size),diagonal=1).type(torch.int)
     return mask==0
-=======
-            'encoder_input':self.encoder_input,
-            'decoder_input':self.decoder_input,
-            'label':self.output_label
-        }
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
