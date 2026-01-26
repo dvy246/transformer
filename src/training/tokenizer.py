@@ -5,10 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader,Dataset,random_split
 
 from datasets import load_dataset
-<<<<<<< HEAD
 from src.training.data import CustomDataset
-=======
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
 from tokenizers.models import WordLevel
 from tokenizers import Tokenizer
 from tokenizers.trainers import WordLevelTrainer
@@ -17,7 +14,6 @@ from pathlib import Path
 
 
 def get_all_sentences(ds,lang):
-<<<<<<< HEAD
     """
     Iterates over the dataset and yields sentences for a specific language.
 
@@ -28,14 +24,12 @@ def get_all_sentences(ds,lang):
     Yields:
         str: A sentence from the dataset for the specified language.
     """
-=======
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
+
     for items in ds:
         yield items[lang]
 
 
 def get_or_build_tokenizer(config,ds,lang):
-<<<<<<< HEAD
     """
     Retrieves an existing tokenizer from the file path defined in config, or builds and trains a new one.
 
@@ -47,8 +41,6 @@ def get_or_build_tokenizer(config,ds,lang):
     Returns:
         Tokenizer: The loaded or newly trained tokenizer object.
     """
-=======
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
     #define the tokenizer path
     path=Path(config["tokenizer_path"].format(lang))
 
@@ -90,16 +82,11 @@ def get_ds(config):
 
     # train test split
     train_ds_size=int(0.9*len(ds))
-<<<<<<< HEAD
-=======
-
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
     test_ds_size=int(0.1* len(ds))
     
 
     #split the data 
     train_ds_raw,train_ds_val=random_split(ds,[train_ds_size,test_ds_size])
-<<<<<<< HEAD
     
     #create the instance of the dataset
     training_ds=CustomDataset(train_ds_raw,train_tokenizer,val_tokenizer,config['src_lang'],tgt_lang=config['tgt_lang'],seq_lenght=config['seq_lenght'])
@@ -122,8 +109,5 @@ def get_ds(config):
     print(f"max len src {max_len_src} max len tgt {max_len_tgt}")
 
     return training_ds,validation_ds,train_tokenizer,val_tokenizer
-=======
 
     
-
->>>>>>> 837e97f1282eeabab6674f956e8c28d0cfdc63b5
