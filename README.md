@@ -1,6 +1,6 @@
 # Transformer Implementation from Scratch
 
-This project implements a Transformer model from scratch using PyTorch, following the original "Attention Is All You Need" paper. The implementation is designed for educational purposes to help understand the inner workings of the Transformer architecture.
+This project implements a Transformer model from scratch using PyTorch, following the original "Attention Is All You Need" paper. 
 
 ## Table of Contents
 - [Overview](#overview)
