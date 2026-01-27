@@ -5,6 +5,31 @@ from src.transformer.components import MultiHeadAttentionBlock,FeedForwardBlock,
 # ---------------------------------------------------------
 # 9. MODEL BUILDER
 # ---------------------------------------------------------
+"""
+Transformer builder module.
+
+This module provides utilities for constructing complete Transformer models according to the
+architecture specified in the "Attention is All You Need" paper. It implements a factory
+function that assembles all components into a ready-to-use Transformer model.
+
+The builder creates a complete Transformer with:
+1. Configurable vocabulary sizes for source and target languages
+2. Customizable sequence lengths for encoder and decoder
+3. Standard Transformer hyperparameters (d_model, N, h, dropout, d_ff)
+4. Proper initialization of all model parameters
+5. Complete encoder-decoder architecture with attention mechanisms
+
+Key features:
+- Flexible model configuration through parameters
+- Xavier uniform initialization for stable training
+- Complete encoder-decoder architecture
+- Parameterizable model dimensions and depth
+- Integration of all transformer components
+
+For detailed implementation notes and design decisions, refer to the project documentation
+in the /docs directory, particularly the 'Model Construction' and 'Hyperparameter Configuration' sections.
+"""
+
 def build_transformer(src_vocab_size: int, tgt_vocab_size: int, src_seq_len: int, tgt_seq_len: int, d_model: int = 512, N: int = 6, h: int = 8, dropout: float = 0.1, d_ff: int = 2048):
     # 1. Create Embeddings
     src_embed = InputEmbeddings(d_model, src_vocab_size)

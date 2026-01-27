@@ -3,6 +3,33 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+"""
+Core components module for the Transformer model.
+
+This module implements the fundamental building blocks of the Transformer architecture as described in the "Attention is All You Need" paper.
+Each component serves a specific purpose in the encoder-decoder architecture and can be used independently or combined to form complete models.
+
+Key components include:
+- Input embeddings with scaling factor
+- Positional encoding using sinusoidal functions
+- Multi-head attention mechanism
+- Feed-forward networks
+- Layer normalization
+- Residual connections with layer normalization
+- Position-wise feed-forward blocks
+
+Architecture overview:
+1. Input embeddings convert tokens to dense vectors
+2. Positional encoding adds sequential information
+3. Multi-head attention enables parallel attention computation
+4. Feed-forward networks process each position independently
+5. Residual connections and layer normalization stabilize training
+6. Stacked layers form the encoder and decoder blocks
+
+For detailed implementation notes and design decisions, refer to the project documentation
+in the /docs directory, particularly the 'Transformer Components' and 'Attention Mechanism' sections.
+"""
+
 # ---------------------------------------------------------
 # 1. INPUT EMBEDDINGS
 # ---------------------------------------------------------

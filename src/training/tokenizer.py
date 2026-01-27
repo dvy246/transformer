@@ -11,6 +11,30 @@ from tokenizers.trainers import WordLevelTrainer
 from tokenizers.pre_tokenizers import Whitespace
 from pathlib import Path
 
+"""
+Tokenizer module for the Transformer model.
+
+This module handles the creation and management of tokenizers for both source and target languages.
+It includes functionality for building new tokenizers from datasets or loading existing ones,
+as well as preparing datasets with appropriate tokenization.
+
+The tokenization process follows these key steps:
+1. Loading or training tokenizers for source and target languages
+2. Creating special tokens (SOS, EOS, PAD, UNK)
+3. Preparing datasets with proper tokenization
+4. Computing statistics about sequence lengths
+
+Key features:
+- Dynamic tokenizer creation and loading
+- Support for special tokens (SOS, EOS, PAD, UNK)
+- Word-level tokenization strategy
+- Efficient dataset preparation with CustomDataset
+- Sequence length statistics for model configuration
+
+For detailed implementation notes and design decisions, refer to the project documentation
+in the /docs directory, particularly the 'Tokenization Strategy' and 'Data Pipeline' sections.
+"""
+
 
 def get_all_sentences(ds,lang):
     """
