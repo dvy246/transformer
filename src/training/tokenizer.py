@@ -112,10 +112,11 @@ def get_ds(config):
     train_ds_raw,train_ds_val=random_split(ds,[train_ds_size,test_ds_size])
     
     #create the instance of the dataset
-    training_ds=CustomDataset(train_ds_raw,train_tokenizer,val_tokenizer,config['src_lang'],tgt_lang=config['tgt_lang'],seq_lenght=config['seq_lenght'])
-    validation_ds=CustomDataset(train_ds_val,train_tokenizer,val_tokenizer,config['src_lang'],tgt_lang=config['tgt_lang'],seq_lenght=config['seq_lenght'])
+    training_ds=CustomDataset(train_ds_raw,train_tokenizer,val_tokenizer,config['src_lang'],tgt_lang=config['tgt_lang'],seq_length=config['seq_length'])
+    validation_ds=CustomDataset(train_ds_val,train_tokenizer,val_tokenizer,config['src_lang'],tgt_lang=config['tgt_lang'],seq_length=config['seq_length'])
 
     
+
     #we will check the size of the sequence in the dataset and adjust the sequence lenght
 
     max_len_src=0

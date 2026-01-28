@@ -154,6 +154,7 @@ class MultiHeadAttentionBlock(nn.Module):
         return (attention_scores @ value), attention_scores
 
     def forward(self, q, k, v, mask):
+        
         query = self.w_q(q) # (Batch, seq_len, d_model)
         key = self.w_k(k)
         value = self.w_v(v)

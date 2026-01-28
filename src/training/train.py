@@ -28,10 +28,11 @@ from src.config import config
 import torch
 import torch.optim as optim
 import torch.nn as nn
-import tqdm
+from tqdm import tqdm
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from pathlib import Path
+from src.training.val import run_validation
 from src.config.config import get_config, model_weights_file_path
 import warnings
 from src.training.tokenizer import get_ds
@@ -123,8 +124,8 @@ def train_model(config):
     model = build_transformer(
         train_tokenizer.get_vocab_size(),
         val_tokenizer.get_vocab_size(),
-        config['seq_lenght'],
-        config['seq_lenght']
+        config['seq_length'],
+        config['seq_length']
     )
     
     # Move model to the selected device (MPS or CPU)
@@ -196,7 +197,7 @@ def train_model(config):
     # the model from becoming overconfident in its predictions, which helps reduce
     # overfitting in sequence-to-sequence tasks.
     loss = nn.CrossEntropyLoss(
-        ignore_index=train_tokenizer.token_to_id('[PAD]').id,
+        ignore_index=train_tokenizer.token_to_id('[PAD]'),
         label_smoothing=0.1
     )
     
@@ -206,8 +207,6 @@ def train_model(config):
     # ============================================================================
     # Iterate through epochs
     for epochs in range(initial_epoc, config['epochs']):
-        # Set model to training mode (enables dropout, batch norm updates, etc.)
-        model.train()
         
         # Create progress bar for the epoch
         training_loader = tqdm(training_ds, f'processing epoch {epochs:02d}')
@@ -215,6 +214,9 @@ def train_model(config):
         # Iterate through batches in the training dataset
         for batch in training_loader:
             
+            # Set model to training mode (enables dropout, batch norm updates, etc.)
+            model.train()
+
             # ====================================================================
             # STEP 10.1: LOAD BATCH DATA TO DEVICE
             # ====================================================================
@@ -274,9 +276,9 @@ def train_model(config):
             # ====================================================================
             # Ground truth target tokens (what the model should predict)
             # Shape: (batch_size, seq_length)
-            label = batch['labels'].to(device)
+            label = batch['label'].to(device)  # Reverted to singular 'label' (was 'labels')
             
-            
+
             # ====================================================================
             # STEP 10.6: COMPUTE LOSS
             # ====================================================================
@@ -288,22 +290,22 @@ def train_model(config):
                 projections.view(-1, train_tokenizer.get_vocab_size()),
                 label.view(-1)
             )
-            
-            
+
+
             # ====================================================================
             # STEP 10.7: UPDATE PROGRESS BAR
             # ====================================================================
             # Display current loss value in the progress bar
             training_loader.set_postfix(f'loss:{loss_value.item():6.3f}')
-            
-            
+
+
             # ====================================================================
             # STEP 10.8: LOG METRICS TO TENSORBOARD
             # ====================================================================
             # Record loss value for visualization in TensorBoard
             writer.add_scalar('training_loss', loss_value.item(), global_step)
-            
-            
+
+
             # ====================================================================
             # STEP 10.9: BACKWARD PASS AND OPTIMIZATION
             # ====================================================================
@@ -316,10 +318,15 @@ def train_model(config):
             # Update model parameters using computed gradients
             optimizer.step()
             
+            # ====================================================================
+            # STEP 10 RUN VALIDATION
+            # ====================================================================
+            run_validation(validation_ds=validation_ds,model=model,src_tokenizer=train_tokenizer,tgt_tokenizer=val_tokenizer,max_len=config['seq_length'],device=device,writer=writer,print_msg=lambda x: training_loader.write(x),global_step=global_step)
+
             # Increment global step counter
             global_step += 1
         
-        
+
         # ====================================================================
         # STEP 11: SAVE CHECKPOINT AFTER EPOCH
         # ====================================================================

@@ -36,12 +36,12 @@ def get_config():
         'tgt_lang':'hindi_sentence',
         'lr':10**-4,
         'batch_size':350,
-        'seq_lenght':350,
+        'seq_length':350,  # Fixed typo: was 'seq_lenght'
         'd_model':512,
         'epochs':20,
         'model_folder':'weights',
         'model_basename':'base_name',
-        'preload':True,
+        'preload':False,
         'experiment_name':'runs/model',
         'tokenizer_path':'./tokenizer_{0}.json'
 
